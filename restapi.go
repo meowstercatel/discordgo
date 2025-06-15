@@ -208,7 +208,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	// Not used on initial login..
 	// TODO: Verify if a login, otherwise complain about no-token
 	if s.Token != "" {
-		req.Header.Set("Authorization", s.Token)
+		req.Header.Set("authorization", s.Token)
 	}
 
 	// Discord's API returns a 400 Bad Request is Content-Type is set, but the
@@ -327,6 +327,17 @@ func unmarshal(data []byte, v interface{}) error {
 func (s *Session) User(userID string, options ...RequestOption) (st *User, err error) {
 
 	body, err := s.RequestWithBucketID("GET", EndpointUser(userID), nil, EndpointUsers, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+func (s *Session) UserProfile(userID string, options ...RequestOption) (st *User, err error) {
+
+	body, err := s.RequestWithBucketID("GET", EndpointUsers + userID + "/profile", nil, EndpointUsers, options...)
 	if err != nil {
 		return
 	}
